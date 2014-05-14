@@ -18,7 +18,7 @@ CXX = g++
 TARGET = main.out
 TESTTARGET = test.out
 C_WFLAGS = -Wall
-C_OBJS = ObjectManager_Test.o ObjectManager.o
+C_OBJS = Geometry_Test.o Geometry.o
 
 # == System Specific flags == #
 # Objs 		are to be named the same as the source-files except for .o - extention
