@@ -15,6 +15,16 @@ class Geometry
 		// Getters:
 		int id();		// The objects ID
 		bool zombie();	// The objects zombie-status
+
+		// Get the list of faces, vertecies, colors and colortype.
+		int getNrVerts();
+		void getVertList(float** vl);
+		int getNrFaces();
+		void getFaceList(int** fl);
+		int getColorType();				// 0=no Color, 1=vert, 2=face
+		void getColorList(float** cl);
+
+		// 
 	private:
 
 		// Data members have a m before their name to differentiate them from functions.
