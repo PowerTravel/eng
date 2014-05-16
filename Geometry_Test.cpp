@@ -27,11 +27,11 @@ using namespace std;
 
 
 // Create test .off file and supplies ground truth
-Geometry create_test_off_NoColor(const char* filename)
+Geometry create_off_NoColor(const char* filename)
 {
 	// Creates the .off file
 	ofstream file(filename);
-
+	// Save the file
 	char pyramid[] = " OFF  \n4\t  4 6 \n 0,5 -0.5 -0.5 \n\t0.5  0.5 \t -0.5\n -0.5 0.0 -0.5  \n0.0 0.0 0.5 \n3 0 1 3 \n3 2 0 3\n3 1 2 3\n3 0 1 2";
 	file << pyramid << endl;
 	file.close();
@@ -40,18 +40,19 @@ Geometry create_test_off_NoColor(const char* filename)
 	int nrVert = 4;
 	int nrFace = 4;
 	int nrLine = 6;
+	int colorType = 0;
+	
+	float tVl[4][3] = {	{ 0.5,-0.5,-0.5 },
+						{ 0.5, 0.5,-0,5 },
+						{-0.5, 0.0,-0.5 },
+						{ 0.0, 0.0, 0.5 } };
+	int tFl[4][3] = {	{3,0,1,3},
+						{3,2,0,3},
+						{3,1,2,3},
+						{3,0,1,2} };
+	float tCl[][] = NULL;
 
-	tVl[0][0] = 0.5; tVl[0][1] = -0.5;tVl[0][2] = -0.5;
-	tVl[1][0] = 0.5; tVl[1][1] = 0.5; tVl[1][2] = -0.5;
-	tVl[2][0] = -0.5;tVl[2][1] = 0.0; tVl[2][2] = -0.5;
-	tVl[3][0] = 0.0; tVl[3][1] = 0.0; tVl[3][2] = 0.5;
-
-	tF1[0][0] = 3; tF1[0][1] = 0; tF1[0][2] = 1; tF1[0][3] = 3;	
-	tF1[1][0] = 3; tF1[1][1] = 2; tF1[1][2] = 0; tF1[1][3] = 3;	
-	tF1[2][0] = 3; tF1[2][1] = 1; tF1[2][2] = 2; tF1[2][3] = 3;	
-	tF1[3][0] = 3; tF1[3][1] = 0; tF1[3][2] = 1; tF1[3][3] = 2;	
-
-	Geometry gtGeom = Geometry();
+	return Geometry(nrVert, tVl, nrFace, tF1, nrLine, colorType, tCl);
 }
 
 bool remove_test_file(const char* filename)
@@ -88,23 +89,22 @@ bool test1_new_delete()
 	return true;
 }
 
-void get_list_from_geom(Geometry* geom,int* nrVert,float** vl,int*  nrFace, int** fl, int* nrLine, int* colorType, float** cd)
-{
-
-}
-
-void create_ground_truth_geom(void (ground_truth_fun)(const char, ) )
-{
-
-}
-
 int test_geom_compare_fun()
 {	
 	int failFlag = 0;
+	// Ground Truth Geometry and creates .off Testfile
+	Geometry gtGeom create_off_NoColor(TESTFILE);
 
-	
+	Geometry geom = Geometry();
+	geom.load(TESTFILE);
+
+	if ( !geom.compare(gtGeom) ) 
+	{
+		failFlag += 2;
+	}
+
+	remove_test_file(TESTFILE);
 }
-
 
 bool test2_load_OFF_NoColor()
 {
@@ -196,7 +196,7 @@ int testEqual()
 	int** trueFl = NULL; 
 	float** trueCl = NULL;
 	// Get ground truth we can compare against
-	getPyramidGroundTruth( &nrVert, trueVl, &nrFace , trueFl, &colorType, trueCl);
+	Geometry gm = getPyramidGroundTruth();
 
 	// Create a geom containing groundtruth
 	Geometry gtGeom(treVl, trueFl, trueCl);
@@ -251,6 +251,11 @@ int main(int argc, const char *argv[])
 
 	j++;
 	if ( test1_new_delete() ) {
+		i++;
+	}
+
+	j++;
+	if ( test_compare() ) {
 		i++;
 	}
 
