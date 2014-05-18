@@ -1,5 +1,5 @@
 # Valid workstations are "OSX" and "UNIX"
-WORKSTATION = OSX
+WORKSTATION = UNIX
 
 
 # COMPILED WITH:

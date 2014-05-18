@@ -3,57 +3,18 @@
 #include <stdio.h>
 #include "Geometry.h"
 
-/*
-// Create comparison object
-float** create_referenceGeom();
-bool create_test_off_NoColor(const char* filename);
-bool remove_test_file(const char* filename);
-// Tests if the class can be created
-bool test1_new_delete();
-// Tests if it can load off files without color info
-bool test2_load_OFF_NoColor();
-// Tests if it can load off files with vertex color
-bool test3_load_OFF_VertColor();
-// Tests if it can load off files with face color
-bool test4_load_OFF_FaceColor();
-// Tests if it notices that the off file is broken
-bool test5_load_broken_OFF();
-*/
+// Test Struct:
+struct gtGeom{
+	int nrVert, nrFace, nrLine;
+	float** vl;
+	int** fl;
+	float** cl;
+};
 
 // Global name for testfile
 const char TESTFILE[] = "pyramidTest.off";
 
 using namespace std;
-
-
-// Create test .off file and supplies ground truth
-Geometry create_off_NoColor(const char* filename)
-{
-	// Creates the .off file
-	ofstream file(filename);
-	// Save the file
-	char pyramid[] = " OFF  \n4\t  4 6 \n 0,5 -0.5 -0.5 \n\t0.5  0.5 \t -0.5\n -0.5 0.0 -0.5  \n0.0 0.0 0.5 \n3 0 1 3 \n3 2 0 3\n3 1 2 3\n3 0 1 2";
-	file << pyramid << endl;
-	file.close();
-	
-	// Creates GroundTruth
-	int nrVert = 4;
-	int nrFace = 4;
-	int nrLine = 6;
-	int colorType = 0;
-	
-	float tVl[4][3] = {	{ 0.5,-0.5,-0.5 },
-						{ 0.5, 0.5,-0,5 },
-						{-0.5, 0.0,-0.5 },
-						{ 0.0, 0.0, 0.5 } };
-	int tFl[4][3] = {	{3,0,1,3},
-						{3,2,0,3},
-						{3,1,2,3},
-						{3,0,1,2} };
-	float tCl[][] = NULL;
-
-	return Geometry(nrVert, tVl, nrFace, tF1, nrLine, colorType, tCl);
-}
 
 bool remove_test_file(const char* filename)
 {
@@ -71,166 +32,328 @@ bool remove_test_file(const char* filename)
  *  Creates and deletes ten geometries and makes sure that their id is correct.
  *	Aditional operations may be created as they become needed.
  */
-bool test1_new_delete()
+int test_construct_destruct()
 {	
 	cout << "\tTesting constructor and destructor... ";
-	
-	for(int i=0; i<10; i++)
-	{
+	for(int i=0; i<10; i++)	{
 		Geometry geom = Geometry();
-		if( geom.id() != i)
-		{
+		if( geom.id() != i){
 			cout << "failed."<<endl;
-			return false;
+			return 1;
 		}
 	}
 
 	cout << "done." << endl;
+	return 0;
+}
+
+
+bool test_vert_loop(Geometry* geom, int len ,float** gt)
+{
+	vector< vector<float> > arr = geom->vertVec();
+	if(arr.size() != (unsigned int) len)
+		return false;
+
+	for(int i=0; i<len; i++) {
+		if (arr[i].size() != 4)
+			return false;
+		
+		for (int j=0; j<4; j++) {
+			if ( arr[i][j] != gt[i][j]) {
+				return false;
+			}
+		}
+	} 	
 	return true;
 }
 
-int test_geom_compare_fun()
-{	
-	int failFlag = 0;
-	// Ground Truth Geometry and creates .off Testfile
-	Geometry gtGeom create_off_NoColor(TESTFILE);
-
-	Geometry geom = Geometry();
-	geom.load(TESTFILE);
-
-	if ( !geom.compare(gtGeom) ) 
-	{
-		failFlag += 2;
-	}
-
-	remove_test_file(TESTFILE);
-}
-
-bool test2_load_OFF_NoColor()
+bool test_face_loop(Geometry* geom, int len , int** gt)
 {
-	cout << "\tTrying to load a .off file without color info... ";
-	
-	int failFlag = 0;
+	vector< vector<int> > arr = geom->faceVec();
+	if(arr.size() != (unsigned int) len)
+		return false;
 
-	// Declare Ground Truth Variables
-	int gtNrVert=0, gtNrFace=0, gtNrLine=0,  gtColorType=-1;
-	float** gtVl = NULL;
-	int** gtFl = NULL;
-	float** gtCl = NULL;
-
-	// Declare Test Variables
-	int nrVert=0, nrFace=0, nrLine=0, colorType=-1;
-	float** vl = NULL;
-	int** fl = NULL;
-	float** cl = NULL;
-
-	create_test_off_NoColor(TESTFILE, &gtNrVert, gtV1, &gtNrFace, gtFl, &gtNrLine, &gtColorType, gtCl)
-	
-	Geometry geom = Geometry();
-	geom.load(TESTFILE);
-
-	
-
-	get_list_from_geom(geom, nrVert, vl, nrFace, fl, nrLine, colorType, cd);
-
-	
-
-	// Get the list and nr of vertecies
-	int vlnr = geom.getNrVerts(vl);
-	float** vl = NULL;
-	geom.getVertList(vl);
-
-	// Get the list and nr of faces.	
-	int flnr = geom.getNrFaces();
-	int** fl = NULL;
-	geom.getFaceList(fl);
-
-	// Get the colortype and the colorlist (should be null)
-	int coloType = geom.getColorType();
-	float** cl = NULL;
-	geom.getColorList(cl);
-
-	get_geom_data(&nrVert, vl, &nrFace, fl, &nrLine, &colorType, cl);	
-
-	// Check that the number of vertex, faces and colors are ok
-	if(vlnr != 8){
-		failFlag += 1;
-	}else if(flnr != 8){
-		failFlag += 2;
-	}else if(colorType != 0){
-		failFlag += 4;
-	}else if(colorList != NULL ){
-		failFlag += 8;
-	}
-
-	bool vertFailFlag = false;
-	bool faceFailFlag = false;
-	for (int i=0; i<4; i++ )
-	{
-		for	(int j=0; j<3; j++)
-		{
-			if ( vl[i][j]!=trueVl[i][j] )
-			{
-				vertFailFlag = true;
+	for(int i=0; i<len; i++) {
+		if (arr[i].size() != 4)
+			return false;
+		
+		int lineLen = gt[i][0];
+		for (int j=1; j<lineLen; j++) {
+			if ( arr[i][j] != gt[i][j]) {
+				return false;
 			}
 		}
-		
-		for (int j = 0; j<4; j++)
-		{
-			if ( fl[i][0]!=trueFl[i][0] )
-			{
-				faceFailFlag = true;
-			}	
-		}
-	}
-	remove_test_file(TESTFILE);
-	cout << "failed." << endl;
-	return false;
+	} 	
+	return true;
 }
 
-// Tests the equal function in geom.
-int testEqual()
+bool test_color_loop(Geometry* geom, int len ,float** gt)
 {
-	int nrVert=-1, nrFace=-1, colorType-10; 
-	float** trueVl = NULL;
-	int** trueFl = NULL; 
-	float** trueCl = NULL;
-	// Get ground truth we can compare against
-	Geometry gm = getPyramidGroundTruth();
+	vector< vector<float> > arr = geom->colorVec();
+	if(arr.size() != (unsigned int)len)
+		return false;
 
-	// Create a geom containing groundtruth
-	Geometry gtGeom(treVl, trueFl, trueCl);
+	for(int i=0; i<len; i++) {
+		if (arr[i].size() != 4)
+			return false;
+
+		for (int j=0; j<4; j++) {
+			if ( arr[i][j] != gt[i][j])
+				return false;
+			
+		}
+	} 
+	return true;
+}
+int	test_load_OFF_NoColor()
+{	
+	cout << "\tTrying to load a .off file without color info... ";
+	int failState = 0;
+	
+	//* Create Ground Truth *//
+	int nrVert = 4, nrFace = 4, nrLine = 6, colorType = 0;	
+	// Ground Truth Vertex Array
+	float vArr[4][4] = { {  0.5, -0.5, -0.5, 1.0},
+						   {  0.5,  0.5, -0.5, 1.0},
+						   { -0.5,  0.0, -0.5, 1.0},
+						   {  0.0,  0.0,  0.5, 1.0} };
+	float* gtVArr[] = {vArr[0], vArr[1], vArr[2], vArr[3]};
+
+	// Ground Truth Face Array
+	int fArr[4][4] = {{3,0,1,3},
+						{3,2,0,3},
+						{3,1,2,3},
+						{3,0,1,2}};
+
+	int* gtFArr[4] = {fArr[0],fArr[1],fArr[2],fArr[3]};
+	// Ground Truth Color Array
+	float** gtCArr = NULL;
+
+	//* Create Test Object *//
+	// Creates the .off file
+	ofstream file(TESTFILE);
+	// Write the pyramid to it
+	char pyramid[] = " OFF  \n4\t  4 6 \n 0,5 -0.5 -0.5 \n\t0.5  0.5 \t -0.5 \n -0.5 0.0 -0.5   \t\n0.0 0.0 0.5 \n3 0 1 3 \n3 2 0 3\n3 1 2 3\n3 0 1 2";
+	file << pyramid << endl;
+	file.close();
+	// Load the file into geometry
+	Geometry geom = Geometry();
+	geom.load(TESTFILE);
+	// Delete the file
+	remove_test_file(TESTFILE);
+
+
+	//* Do the test  *//
+	// Test numbers
+	if(geom.nrVerts() != nrVert)
+		failState += 1;
+
+	if( geom.nrFaces() != nrFace )
+		failState +=2;
+
+	if( geom.nrLines() != nrLine )
+		failState += 4;
+
+	if( geom.colorType() != colorType )
+		failState +=8;
+
+	// Test arrays
+	if ( !test_vert_loop(&geom, nrVert, gtVArr) )
+		failState += 16;
+		
+	if ( !test_face_loop(&geom, nrFace, gtFArr) )
+		failState += 32;
+	
+	if ( !test_color_loop(&geom, 0, gtCArr) )
+		failState += 64;
+
+	if (failState != 0) {
+		cout<<"failed."<<endl;
+	}else{
+		cout<<"success."<<endl;
+	}
+	return failState;
 }
 
 
-bool test3_load_OFF_VertColor()
+int test_load_OFF_VertColor()
 {
 	cout << "\tTrying to load a .off file with vertex color info... ";
-	
 
-	cout << "failed." << endl;
-	return false;
+	int failState = 0;
+	
+	//* Create Ground Truth *//
+	int nrVert = 4, nrFace = 4, nrLine = 6, colorType = 1;	
+	// Ground Truth Vertex Array
+	float vArr[4][4] = { {  0.5, -0.5, -0.5, 1.0},
+						   {  0.5,  0.5, -0.5, 1.0},
+						   { -0.5,  0.0, -0.5, 1.0},
+						   { 0.0,  0.0,  0.5, 1.0} };
+	float* gtVArr[] = {vArr[0], vArr[1], vArr[2], vArr[3]};
+
+	// Ground Truth Face Array
+	int fArr[4][4] = {{3,0,1,3},
+						{3,2,0,3},
+						{3,1,2,3},
+						{3,0,1,2}};
+	int* gtFArr[4] = {fArr[0],fArr[1],fArr[2],fArr[3]};
+
+	// Ground Truth Color Array
+	float cArr[4][4] = {{0.5,0.5,0.5,1.0},
+						{0.3,0.3,0.3,1.0},
+						{0.6,0.5,0.4,1.0},
+						{0.3,0.4,0.5,1.0}};
+	float* gtCArr[4] = {cArr[0], cArr[1], cArr[2],cArr[3]};
+
+	//* Create Test Object *//
+	// Creates the .off file
+	ofstream file(TESTFILE);
+	// Write the pyramid to it
+	char pyramid[] = "COFF  \n4 4 6 \n 0,5 -0.5 -0.5\t 0.5 0.5 0.5 1.0 \n0.5  0.5 -0.5 \t  0.3 0.3 0.3 1.0  \n -0.5 0.0 -0.5\t  0.6 0.5 0.4 1.0 \t\n 0.0 0.0 0.5 \t 0.3 0.4 0.5 1.0\n3 0 1 3 \n3 2 0 3\n3 1 2 3\n3 0 1 2";
+	file << pyramid << endl;
+	file.close();
+	// Load the file into geometry
+	Geometry geom = Geometry();
+	geom.load(TESTFILE);
+	// Delete the file
+	remove_test_file(TESTFILE);
+
+
+	//* Do the test  *//
+	// Test numbers
+	if(geom.nrVerts() != nrVert)
+		failState += 1;
+
+	if( geom.nrFaces() != nrFace )
+		failState +=2;
+
+	if( geom.nrLines() != nrLine )
+		failState += 4;
+
+	if( geom.colorType() != colorType )
+		failState +=8;
+
+	// Test arrays
+	if ( !test_vert_loop(&geom, nrVert, gtVArr) )
+		failState += 16;
+		
+	if ( !test_face_loop(&geom, nrFace, gtFArr) )
+		failState += 32;
+	
+	if ( !test_color_loop(&geom, nrVert, gtCArr) )
+		failState += 64;
+
+	if (failState != 0) {
+		cout<<"failed."<<endl;
+	}else{
+		cout<<"success."<<endl;
+	}
+	return failState;
 }
-bool test4_load_OFF_FaceColor()
+int test_load_OFF_FaceColor()
 {
 	cout << "\tTrying to load a .off file with face color info... ";
+	int failState = 0;
+	
+	//* Create Ground Truth *//
+	int nrVert = 4, nrFace = 4, nrLine = 6, colorType = 2;	
+	// Ground Truth Vertex Array
+	float vArr[4][4] = { {  0.5, -0.5, -0.5, 1.0},
+						   {  0.5,  0.5, -0.5, 1.0},
+						   { -0.5,  0.0, -0.5, 1.0},
+						   { 0.0,  0.0,  0.5, 1.0} };
+	float* gtVArr[] = {vArr[0], vArr[1], vArr[2], vArr[3]};
 
-	cout << "failed." << endl;
-	return false;
+	// Ground Truth Face Array
+	int fArr[4][4] = {{3,0,1,3},
+						{3,2,0,3},
+						{3,1,2,3},
+						{3,0,1,2}};
+	int* gtFArr[4] = {fArr[0],fArr[1],fArr[2],fArr[3]};
+
+	// Ground Truth Color Array
+	float cArr[4][4] = {{0.5,0.5,0.5,1.0},
+						{0.3,0.3,0.3,1.0},
+						{0.6,0.5,0.4,1.0},
+						{0.3,0.4,0.5,1.0}};
+	float* gtCArr[4] = {cArr[0], cArr[1], cArr[2],cArr[3]};
+
+	//* Create Test Object *//
+	// Creates the .off file
+	ofstream file(TESTFILE);
+	// Write the pyramid to it
+	char pyramid[] = "OFF  \n4 4 6 \n 0,5 -0.5 -0.5\n0.5  0.5 -0.5 \n -0.5 0.0 -0.5\t\n 0.0 0.0 0.5 \n3 0 1 3 \t 0.5 0.5 0.5 1.0 \n3 2 0 3 \t  0.3 0.3 0.3 1.0  \n3 1 2 3 \t  0.6 0.5 0.4 1.0  \n3 0 1 2 \t 0.3 0.4 0.5 1.0 ";
+	file << pyramid << endl;
+	file.close();
+	// Load the file into geometry
+	Geometry geom = Geometry();
+	geom.load(TESTFILE);
+	// Delete the file
+	remove_test_file(TESTFILE);
+
+
+	//* Do the test  *//
+	// Test numbers
+	if(geom.nrVerts() != nrVert)
+		failState += 1;
+
+	if( geom.nrFaces() != nrFace )
+		failState +=2;
+
+	if( geom.nrLines() != nrLine )
+		failState += 4;
+
+	if( geom.colorType() != colorType )
+		failState +=8;
+
+	// Test arrays
+	if ( !test_vert_loop(&geom, nrVert, gtVArr) )
+		failState += 16;
+		
+	if ( !test_face_loop(&geom, nrFace, gtFArr) )
+		failState += 32;
+	
+	if ( !test_color_loop(&geom, nrFace, gtCArr) )
+		failState += 64;
+
+	if (failState != 0) {
+		cout<<"failed."<<endl;
+	}else{
+		cout<<"success."<<endl;
+	}
+	return failState;
 }
-bool test5_load_broken_OFF()
+
+// Loads an .off file without OFF header.
+int test_load_broken_OFF()
 {
 	cout << "\tTrying to load a broken .off file... ";
+	int failState = 0;
 
-	cout << "failed." << endl;
-	return false;
-}
+	//* Create Test Object without OFF *//
+	// Creates the .off file
+	ofstream file(TESTFILE);
+	// Write the pyramid to it
+	char pyramid[] = "boff  \n4 4 6 \n 0,5 -0.5 -0.5\n0.5  0.5 -0.5 \n -0.5 0.0 -0.5\t\n 0.0 0.0 0.5 \n3 0 1 3 \t 0.5 0.5 0.5 1.0 \n3 2 0 3 \t  0.3 0.3 0.3 1.0  \n3 1 2 3 \t  0.6 0.5 0.4 1.0  \n3 0 1 2 \t 0.3 0.4 0.5 1.0 ";
+	file << pyramid << endl;
+	file.close();
+	// Load the file into geometry
+	Geometry geom = Geometry();
+	geom.load(TESTFILE);
 
-float** create_referenceGeom()
-{
-	// Allocate space for a reference-pyramid
-	//float** geom_ref = new (float*)[9];
-	return NULL;
+	if (!geom.zombie())
+		failState += 1;
+
+	// Delete the file
+	remove_test_file(TESTFILE);
+
+
+	if (failState != 0) {
+		cout<<"failed."<<endl;
+	}else{
+		cout<<"success."<<endl;
+	}
+	return failState;
 }
 
 int main(int argc, const char *argv[])
@@ -239,45 +362,25 @@ int main(int argc, const char *argv[])
 	cout << "-= Unit test of class Geometry starting =-"<<endl;
 	int i=0,j=0;
 
-	/*
-	test constructor // destructor
-	test geoms compare-funk
+	j++;
+	if ( test_construct_destruct()==0 )
+		i++;
+
+	j++;
+	if ( test_load_OFF_NoColor()==0 )
+		i++;
+
+	j++;
+	if ( test_load_OFF_VertColor()==0 )
+		i++;
+
+	j++;
+	if ( test_load_OFF_FaceColor()==0 )
+		i++;
 	
-	test everything else by creating a ground-truth geom and comparing with a
-	geom loaded from object.
-	
-	*/
-
-
 	j++;
-	if ( test1_new_delete() ) {
+	if ( test_load_broken_OFF()==0 )
 		i++;
-	}
-
-	j++;
-	if ( test_compare() ) {
-		i++;
-	}
-
-	j++;
-	if ( test2_load_OFF_NoColor() ) {
-		i++;
-	}
-
-	j++;
-	if ( test3_load_OFF_VertColor() ) {
-		i++;
-	}
-
-	j++;
-	if ( test4_load_OFF_FaceColor() ) {
-		i++;
-	}
-
-	j++;
-	if ( test5_load_broken_OFF() ) {
-		i++;
-	}
 
 
 	cout <<"\n\t"<< i << " out of " << j << " tests succeeded." << endl;

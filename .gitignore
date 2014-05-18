@@ -23,3 +23,6 @@
 
 #Vim Swap files
 *.swp
+
+# A testfile for quick g++ syntax testing
+testfile.cpp
