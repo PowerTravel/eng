@@ -1,7 +1,27 @@
 #ifndef GEOMETRY_H
 #define GEOMETRY_H
 
+#include <iostream>
 #include <vector>
+
+enum fileType{
+	ERR_TYPE,	// unrecognized
+	OFF_TYPE,	// .off type
+	OBJ_TYPE	// .obj type
+};
+
+enum offType{
+	OFF_TYPE_ERR = -1,
+	OFF_TYPE_NULL = 0,
+	OFF_TYPE_ST = 1,
+	OFF_TYPE_C = 2,
+	OFF_TYPE_N = 4,
+	OFF_TYPE_4 = 8,
+	OFF_TYPE_n = 16
+};
+inline offType operator|(offType a, offType b)
+{return static_cast<offType>(static_cast<int>(a) | static_cast<int>(b));}
+
 // Geometry class, Holds geometry data
 // Can load off files and at some later
 // pointa also other types of files
@@ -42,8 +62,18 @@ class Geometry
 		
 		int mNrVerts;
 		int mNrFaces;
-		int mNrLine;
+		int mNrLines;
 		int	mColorType;
+		int mDim;
+
+		vector< vector<float> > verts;
+		vector< vector<int> > faces;
+		vector< vector<float> > colors;
+
+		fileType hasEnding(const char fp[]);
+		void readOff(const char fp[]);
+		int off_readFirstLine(string line);
+		void readObj(const char fp[]);
 };
 
 #endif // GEOMETRY_h

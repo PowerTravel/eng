@@ -17,7 +17,7 @@ WORKSTATION = UNIX
 CXX = g++
 TARGET = main.out
 TESTTARGET = test.out
-C_WFLAGS = -Wall
+C_WFLAGS = -Wall -std=c++11
 C_OBJS = Geometry_Test.o Geometry.o
 
 # == System Specific flags == #

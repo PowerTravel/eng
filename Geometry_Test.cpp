@@ -133,7 +133,7 @@ int	test_load_OFF_NoColor()
 	// Creates the .off file
 	ofstream file(TESTFILE);
 	// Write the pyramid to it
-	char pyramid[] = " OFF  \n4\t  4 6 \n 0,5 -0.5 -0.5 \n\t0.5  0.5 \t -0.5 \n -0.5 0.0 -0.5   \t\n0.0 0.0 0.5 \n3 0 1 3 \n3 2 0 3\n3 1 2 3\n3 0 1 2";
+	char pyramid[] = " \t OFF#Comment \n4\t  4 6 #comment 2 \n 0.5 -0.5 -0.5#comment3 \n\t0.5  0.5 \t -0.5 \n -0.5 0.0 -0.5   \t\n0.0 0.0 0.5 \n3 0 1 3 \n3 2 0 3\n3 1 2 3\n3 0 1 2";
 	file << pyramid << endl;
 	file.close();
 	// Load the file into geometry
@@ -209,7 +209,7 @@ int test_load_OFF_VertColor()
 	// Creates the .off file
 	ofstream file(TESTFILE);
 	// Write the pyramid to it
-	char pyramid[] = "COFF  \n4 4 6 \n 0,5 -0.5 -0.5\t 0.5 0.5 0.5 1.0 \n0.5  0.5 -0.5 \t  0.3 0.3 0.3 1.0  \n -0.5 0.0 -0.5\t  0.6 0.5 0.4 1.0 \t\n 0.0 0.0 0.5 \t 0.3 0.4 0.5 1.0\n3 0 1 3 \n3 2 0 3\n3 1 2 3\n3 0 1 2";
+	char pyramid[] = "COFF  \n4 4 6 \t\n\t \n 0.5 -0.5 -0.5\t 0.5 0.5 0.5 1.0 \n0.5  0.5 -0.5 \t  0.3 0.3 0.3 1.0 \n#HELLO\n # goodbye \n  \n \n -0.5 0.0 -0.5\t  0.6 0.5 0.4 1.0 \t\n 0.0 0.0 0.5 \t 0.3 0.4 0.5 1.0\n3 0 1 3 \n3 2 0 3\n3 1 2 3\n3 0 1 2";
 	file << pyramid << endl;
 	file.close();
 	// Load the file into geometry
@@ -282,7 +282,7 @@ int test_load_OFF_FaceColor()
 	// Creates the .off file
 	ofstream file(TESTFILE);
 	// Write the pyramid to it
-	char pyramid[] = "OFF  \n4 4 6 \n 0,5 -0.5 -0.5\n0.5  0.5 -0.5 \n -0.5 0.0 -0.5\t\n 0.0 0.0 0.5 \n3 0 1 3 \t 0.5 0.5 0.5 1.0 \n3 2 0 3 \t  0.3 0.3 0.3 1.0  \n3 1 2 3 \t  0.6 0.5 0.4 1.0  \n3 0 1 2 \t 0.3 0.4 0.5 1.0 ";
+	char pyramid[] = "OFF  \n4 4 6 \n 0.5 -0.5 -0.5\n0.5  0.5 -0.5 \n -0.5 0.0 -0.5\t\n 0.0 0.0 0.5 \n3 0 1 3 \t 0.5 0.5 0.5 1.0 \n3 2 0 3 \t  0.3 0.3 0.3 1.0  \n3 1 2 3 \t  0.6 0.5 0.4 1.0  \n3 0 1 2 \t 0.3 0.4 0.5 1.0 ";
 	file << pyramid << endl;
 	file.close();
 	// Load the file into geometry
