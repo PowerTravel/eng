@@ -77,7 +77,7 @@ bool test_face_loop(Geometry* geom, int len , int** gt)
 	{
 		int lineLen = gt[i][0];
 //		std::cout <<" "<< lineLen << " " << gt[i][0]<< std::endl;
-		if (arr[i].size() != lineLen)
+		if (arr[i].size() != (unsigned int)lineLen)
 			return false;
 	
 		for (int j=0; j<lineLen; j++) {

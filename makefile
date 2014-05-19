@@ -1,5 +1,5 @@
 # Valid workstations are "OSX" and "UNIX"
-WORKSTATION = OSX
+WORKSTATION = UNIX
 
 
 # COMPILED WITH:
@@ -17,7 +17,7 @@ WORKSTATION = OSX
 CXX = g++
 TARGET = main.out
 TESTTARGET = test.out
-C_WFLAGS = -Wall -std=c++11
+C_WFLAGS = -Wall -Wsign-compare 
 C_OBJS = Geometry_Test.o Geometry.o
 
 # == System Specific flags == #
@@ -52,7 +52,7 @@ endif
 
 DEPS := $(OBJS:.o=.d)
 
-OFLAGS = $(INCLUDEFLAGS) $(WFLAGS)
+OFLAGS = $(INCLUDEFLAGS) $(WFLAGS) -std=c++11
 TARGETFLAGS = $(LINKFLAGS)
 
 # Buld Target
