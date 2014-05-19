@@ -25,7 +25,7 @@ inline offType operator|(offType a, offType b)
 // Geometry class, Holds geometry data
 // Can load off files and at some later
 // pointa also other types of files
-using namespace std;
+
 class Geometry
 {
 	public:
@@ -41,13 +41,13 @@ class Geometry
 
 		// Get the list of faces, vertecies, colors and colortype.
 		int nrVerts();
-		vector< vector<float> >vertVec();
+		std::vector< std::vector<float> >vertVec();
 		int nrFaces();
-		vector< vector<int> > faceVec();
+		std::vector< std::vector<int> > faceVec();
 		int nrLines();
 		int colorType();				// 0=no Color, 1=vert, 2=face
-		vector< vector<float> >colorVec();
-
+		std::vector< std::vector<float> >colorVec();
+		void print();
 		 
 	private:
 
@@ -66,13 +66,14 @@ class Geometry
 		int	mColorType;
 		int mDim;
 
-		vector< vector<float> > verts;
-		vector< vector<int> > faces;
-		vector< vector<float> > colors;
+		std::vector< std::vector<float> > verts;
+		std::vector< std::vector<int> > faces;
+		std::vector< std::vector<float> > colors;
+		std::vector< std::vector<float> > normals;
 
 		fileType hasEnding(const char fp[]);
 		void readOff(const char fp[]);
-		int off_readFirstLine(string line);
+		int off_readFirstLine(std::string line);
 		void readObj(const char fp[]);
 };
 

@@ -13,14 +13,13 @@ struct gtGeom{
 
 // Global name for testfile
 const char TESTFILE[] = "pyramidTest.off";
-
-using namespace std;
+const char TESTFILE2[] = "pyramidTest2.off";
 
 bool remove_test_file(const char* filename)
 {
 	if( remove(filename) != 0 )
 	{
-		cerr << "remove" << TESTFILE << "failed" << endl;
+		std::cerr << "remove" << TESTFILE << "failed" << std::endl;
 		return false;	
 	}else{
 		return true;
@@ -34,23 +33,22 @@ bool remove_test_file(const char* filename)
  */
 int test_construct_destruct()
 {	
-	cout << "\tTesting constructor and destructor... ";
+	std::cout << "\tTesting constructor and destructor... ";
 	for(int i=0; i<10; i++)	{
 		Geometry geom = Geometry();
 		if( geom.id() != i){
-			cout << "failed."<<endl;
+			std::cout << "failed."<<std::endl;
 			return 1;
 		}
 	}
-
-	cout << "done." << endl;
+	std::cout << "succsses." << std::endl;
 	return 0;
 }
 
 
 bool test_vert_loop(Geometry* geom, int len ,float** gt)
 {
-	vector< vector<float> > arr = geom->vertVec();
+	std::vector< std::vector<float> > arr = geom->vertVec();
 	if(arr.size() != (unsigned int) len)
 		return false;
 
@@ -69,17 +67,22 @@ bool test_vert_loop(Geometry* geom, int len ,float** gt)
 
 bool test_face_loop(Geometry* geom, int len , int** gt)
 {
-	vector< vector<int> > arr = geom->faceVec();
+	std::vector< std::vector<int> > arr = geom->faceVec();
+//	std::cout << "face_loop:  "<< arr.size() << " " << len << std::endl;
 	if(arr.size() != (unsigned int) len)
 		return false;
 
-	for(int i=0; i<len; i++) {
-		if (arr[i].size() != 4)
-			return false;
-		
+//	std::cout<<len << " "<< arr.size()<< std::endl;
+	for(int i=0; i<len; i++) 
+	{
 		int lineLen = gt[i][0];
-		for (int j=1; j<lineLen; j++) {
-			if ( arr[i][j] != gt[i][j]) {
+//		std::cout <<" "<< lineLen << " " << gt[i][0]<< std::endl;
+		if (arr[i].size() != lineLen)
+			return false;
+	
+		for (int j=0; j<lineLen; j++) {
+//			std::cout << arr[i][j] << " " << gt[i][j+1]<<std::endl;			
+			if ( arr[i][j] != gt[i][j+1]) {
 				return false;
 			}
 		}
@@ -89,7 +92,7 @@ bool test_face_loop(Geometry* geom, int len , int** gt)
 
 bool test_color_loop(Geometry* geom, int len ,float** gt)
 {
-	vector< vector<float> > arr = geom->colorVec();
+	std::vector< std::vector<float> > arr = geom->colorVec();
 	if(arr.size() != (unsigned int)len)
 		return false;
 
@@ -107,7 +110,7 @@ bool test_color_loop(Geometry* geom, int len ,float** gt)
 }
 int	test_load_OFF_NoColor()
 {	
-	cout << "\tTrying to load a .off file without color info... ";
+	std::cout << "\tTrying to load a .off file without color info... ";
 	int failState = 0;
 	
 	//* Create Ground Truth *//
@@ -127,21 +130,24 @@ int	test_load_OFF_NoColor()
 
 	int* gtFArr[4] = {fArr[0],fArr[1],fArr[2],fArr[3]};
 	// Ground Truth Color Array
-	float** gtCArr = NULL;
+	float cArr[4][4] = {{2.0/3.0,2.0/3.0,2.0/3.0,1.0},
+						{2.0/3.0,2.0/3.0,2.0/3.0,1.0},
+						{2.0/3.0,2.0/3.0,2.0/3.0,1.0},
+						{2.0/3.0,2.0/3.0,2.0/3.0,1.0}};
+	float* gtCArr[4] = {cArr[0], cArr[1], cArr[2],cArr[3]};
 
 	//* Create Test Object *//
 	// Creates the .off file
-	ofstream file(TESTFILE);
+	std::ofstream file(TESTFILE);
 	// Write the pyramid to it
 	char pyramid[] = " \t OFF#Comment \n4\t  4 6 #comment 2 \n 0.5 -0.5 -0.5#comment3 \n\t0.5  0.5 \t -0.5 \n -0.5 0.0 -0.5   \t\n0.0 0.0 0.5 \n3 0 1 3 \n3 2 0 3\n3 1 2 3\n3 0 1 2";
-	file << pyramid << endl;
+	file << pyramid << std::endl;
 	file.close();
 	// Load the file into geometry
 	Geometry geom = Geometry();
 	geom.load(TESTFILE);
 	// Delete the file
 	remove_test_file(TESTFILE);
-
 
 	//* Do the test  *//
 	// Test numbers
@@ -164,13 +170,13 @@ int	test_load_OFF_NoColor()
 	if ( !test_face_loop(&geom, nrFace, gtFArr) )
 		failState += 32;
 	
-	if ( !test_color_loop(&geom, 0, gtCArr) )
+	if ( !test_color_loop(&geom, nrFace, gtCArr) )
 		failState += 64;
 
 	if (failState != 0) {
-		cout<<"failed."<<endl;
+		std::cout<<"failed."<<std::endl;
 	}else{
-		cout<<"success."<<endl;
+		std::cout<<"success."<<std::endl;
 	}
 	return failState;
 }
@@ -178,7 +184,7 @@ int	test_load_OFF_NoColor()
 
 int test_load_OFF_VertColor()
 {
-	cout << "\tTrying to load a .off file with vertex color info... ";
+	std::cout << "\tTrying to load a .off file with vertex color info... ";
 
 	int failState = 0;
 	
@@ -207,16 +213,16 @@ int test_load_OFF_VertColor()
 
 	//* Create Test Object *//
 	// Creates the .off file
-	ofstream file(TESTFILE);
+	std::ofstream file(TESTFILE2);
 	// Write the pyramid to it
 	char pyramid[] = "COFF  \n4 4 6 \t\n\t \n 0.5 -0.5 -0.5\t 0.5 0.5 0.5 1.0 \n0.5  0.5 -0.5 \t  0.3 0.3 0.3 1.0 \n#HELLO\n # goodbye \n  \n \n -0.5 0.0 -0.5\t  0.6 0.5 0.4 1.0 \t\n 0.0 0.0 0.5 \t 0.3 0.4 0.5 1.0\n3 0 1 3 \n3 2 0 3\n3 1 2 3\n3 0 1 2";
-	file << pyramid << endl;
+	file << pyramid << std::endl;
 	file.close();
 	// Load the file into geometry
 	Geometry geom = Geometry();
-	geom.load(TESTFILE);
+	geom.load(TESTFILE2);
 	// Delete the file
-	remove_test_file(TESTFILE);
+//	remove_test_file(TESTFILE2);
 
 
 	//* Do the test  *//
@@ -244,15 +250,15 @@ int test_load_OFF_VertColor()
 		failState += 64;
 
 	if (failState != 0) {
-		cout<<"failed."<<endl;
+		std::cout<<"failed."<<std::endl;
 	}else{
-		cout<<"success."<<endl;
+		std::cout<<"success."<<std::endl;
 	}
 	return failState;
 }
 int test_load_OFF_FaceColor()
 {
-	cout << "\tTrying to load a .off file with face color info... ";
+	std::cout << "\tTrying to load a .off file with face color info... ";
 	int failState = 0;
 	
 	//* Create Ground Truth *//
@@ -280,10 +286,10 @@ int test_load_OFF_FaceColor()
 
 	//* Create Test Object *//
 	// Creates the .off file
-	ofstream file(TESTFILE);
+	std::ofstream file(TESTFILE);
 	// Write the pyramid to it
 	char pyramid[] = "OFF  \n4 4 6 \n 0.5 -0.5 -0.5\n0.5  0.5 -0.5 \n -0.5 0.0 -0.5\t\n 0.0 0.0 0.5 \n3 0 1 3 \t 0.5 0.5 0.5 1.0 \n3 2 0 3 \t  0.3 0.3 0.3 1.0  \n3 1 2 3 \t  0.6 0.5 0.4 1.0  \n3 0 1 2 \t 0.3 0.4 0.5 1.0 ";
-	file << pyramid << endl;
+	file << pyramid << std::endl;
 	file.close();
 	// Load the file into geometry
 	Geometry geom = Geometry();
@@ -317,9 +323,9 @@ int test_load_OFF_FaceColor()
 		failState += 64;
 
 	if (failState != 0) {
-		cout<<"failed."<<endl;
+		std::cout<<"failed."<<std::endl;
 	}else{
-		cout<<"success."<<endl;
+		std::cout<<"success."<<std::endl;
 	}
 	return failState;
 }
@@ -327,15 +333,15 @@ int test_load_OFF_FaceColor()
 // Loads an .off file without OFF header.
 int test_load_broken_OFF()
 {
-	cout << "\tTrying to load a broken .off file... ";
+	std::cout << "\tTrying to load a broken .off file... ";
 	int failState = 0;
 
 	//* Create Test Object without OFF *//
 	// Creates the .off file
-	ofstream file(TESTFILE);
+	std::ofstream file(TESTFILE);
 	// Write the pyramid to it
 	char pyramid[] = "boff  \n4 4 6 \n 0,5 -0.5 -0.5\n0.5  0.5 -0.5 \n -0.5 0.0 -0.5\t\n 0.0 0.0 0.5 \n3 0 1 3 \t 0.5 0.5 0.5 1.0 \n3 2 0 3 \t  0.3 0.3 0.3 1.0  \n3 1 2 3 \t  0.6 0.5 0.4 1.0  \n3 0 1 2 \t 0.3 0.4 0.5 1.0 ";
-	file << pyramid << endl;
+	file << pyramid << std::endl;
 	file.close();
 	// Load the file into geometry
 	Geometry geom = Geometry();
@@ -349,9 +355,9 @@ int test_load_broken_OFF()
 
 
 	if (failState != 0) {
-		cout<<"failed."<<endl;
+		std::cout<<"failed."<<std::endl;
 	}else{
-		cout<<"success."<<endl;
+		std::cout<<"success."<<std::endl;
 	}
 	return failState;
 }
@@ -359,19 +365,20 @@ int test_load_broken_OFF()
 int main(int argc, const char *argv[])
 {
 	
-	cout << "-= Unit test of class Geometry starting =-"<<endl;
+	std::cout << "-= Unit test of class Geometry starting =-"<<std::endl;
 	int i=0,j=0;
 
 	j++;
-	if ( test_construct_destruct()==0 )
+	int failState = 0;
+	if ( (failState=test_construct_destruct())==0 )
 		i++;
 
 	j++;
-	if ( test_load_OFF_NoColor()==0 )
+	if ( (failState=test_load_OFF_NoColor())==0 )
 		i++;
 
 	j++;
-	if ( test_load_OFF_VertColor()==0 )
+	if ( (failState=test_load_OFF_VertColor())==0 )
 		i++;
 
 	j++;
@@ -382,14 +389,14 @@ int main(int argc, const char *argv[])
 	if ( test_load_broken_OFF()==0 )
 		i++;
 
-
-	cout <<"\n\t"<< i << " out of " << j << " tests succeeded." << endl;
+	std::cout <<"\n\t"<< i << " out of " << j << " tests succeeded." << std::endl;
 
 	if (i != j) {
-		cout << "-= Unit test of class Geometry FAILED =-"<<endl;
+		std::cout << "-= Unit test of class Geometry FAILED =-"<<std::endl;
  	}else{
-		cout << "-= Unit test of class Geometry SUCCEEDED =-"<<endl;
+		std::cout << "-= Unit test of class Geometry SUCCEEDED =-"<<std::endl;
 	}
+	
 	return 0;
 }
 
